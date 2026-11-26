@@ -1,0 +1,20 @@
+name = "nfc-bible-verse"
+main = "src/index.js"
+compatibility_date = "2026-11-01"
+
+# Create with: npx wrangler kv namespace create VERSES
+# then paste the id it prints below.
+[[kv_namespaces]]
+binding = "VERSES"
+id = "REPLACE_WITH_KV_NAMESPACE_ID"
+
+# Pre-fetch the new verse just after midnight Eastern.
+# Cron is UTC: 05:01 UTC = 12:01 AM EST (1:01 AM during daylight time).
+# The Worker also fetches lazily on the first visit of the day, so this is a backup.
+[triggers]
+crons = ["1 5 * * *"]
+
+# Requires 031600.xyz to be an active zone in your Cloudflare account.
+routes = [
+  { pattern = "031600.xyz", custom_domain = true },
+]
