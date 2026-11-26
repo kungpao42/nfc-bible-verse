@@ -11,10 +11,10 @@ run_worker_first = true
 html_handling = "none"
 
 # Daily verse store.
-# Create with:  npx wrangler kv namespace create VERSES   and paste the id below.
+# KV namespace "nfc-bible-verse-VERSES"
 [[kv_namespaces]]
 binding = "VERSES"
-id = "REPLACE_WITH_KV_NAMESPACE_ID"
+id = "7f8b361e366c43d1bef2e8e465fa9de9"
 
 # New verse at 05:00 UTC (midnight EST / 1 AM EDT).
 [triggers]
