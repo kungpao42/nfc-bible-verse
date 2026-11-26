@@ -1,0 +1,16 @@
+{
+  "name": "nfc-bible-verse",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "npm run build && wrangler dev",
+    "test": "node --test test/*.test.js",
+    "deploy": "npm run build && wrangler deploy"
+  },
+  "devDependencies": {
+    "astro": "^7.4.13",
+    "wrangler": "^4.168.0"
+  }
+}

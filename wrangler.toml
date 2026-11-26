@@ -1,20 +1,32 @@
 name = "nfc-bible-verse"
-main = "src/index.js"
+main = "worker/index.js"
 compatibility_date = "2026-11-01"
 
-# Create with: npx wrangler kv namespace create VERSES
-# then paste the id it prints below.
+# Astro's static build output. The Worker runs first on every request so it can
+# fill in /verse.htm and keep the raw template private.
+[assets]
+directory = "./dist"
+binding = "ASSETS"
+run_worker_first = true
+html_handling = "none"
+
+# Daily verse store.
+# Create with:  npx wrangler kv namespace create VERSES   and paste the id below.
 [[kv_namespaces]]
 binding = "VERSES"
 id = "REPLACE_WITH_KV_NAMESPACE_ID"
 
-# Pre-fetch the new verse just after midnight Eastern.
-# Cron is UTC: 05:01 UTC = 12:01 AM EST (1:01 AM during daylight time).
-# The Worker also fetches lazily on the first visit of the day, so this is a backup.
+# New verse at 05:00 UTC (midnight EST / 1 AM EDT).
 [triggers]
-crons = ["1 5 * * *"]
+crons = ["0 5 * * *"]
 
-# Requires 031600.xyz to be an active zone in your Cloudflare account.
-routes = [
-  { pattern = "031600.xyz", custom_domain = true },
-]
+# Settings to iterate on (strings).
+[vars]
+KEEP_LINE_BREAKS = "true"    # "false" = always one paragraph
+REJECT_FRAGMENTS = "false"   # "true"  = refetch verses that start mid-sentence / end on a comma
+MAX_TRIES = "5"              # refetch attempts when REJECT_FRAGMENTS is on
+
+# Uncomment once 031600.xyz is active in Cloudflare.
+# routes = [
+#   { pattern = "031600.xyz", custom_domain = true },
+# ]

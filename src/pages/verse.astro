@@ -1,0 +1,257 @@
+---
+// Static template. The Worker fills every [data-verse-*] slot with the day's verse
+// at request time, so the page is complete HTML with no client-side fetch.
+// The placeholder below is what you see in `npm run dev`.
+const placeholder = {
+  reference: "Psalm 46:10",
+  lines: ["“Be still, and know that I am God.", "I will be exalted among the nations.", "I will be exalted in the earth.”"],
+  date: "Thursday, November 26, 2026",
+  translation: "World English Bible",
+};
+---
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Verse of the Day</title>
+  <meta name="description" content="A new Bible verse every day." />
+  <meta property="og:title" content="Verse of the Day" />
+  <meta property="og:description" content="A new Bible verse every day." />
+  <meta property="og:type" content="website" />
+  <meta name="theme-color" content="#f6f1e7" media="(prefers-color-scheme: light)" />
+  <meta name="theme-color" content="#16130f" media="(prefers-color-scheme: dark)" />
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    rel="stylesheet"
+    href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Inter:wght@400;500;600&display=swap"
+  />
+</head>
+<body>
+  <main class="page">
+    <article class="card">
+      <p class="date" data-verse-date>{placeholder.date}</p>
+
+      <div class="rule" aria-hidden="true"><span></span></div>
+
+      <blockquote class="verse">
+        <p class="text" data-verse-text>
+          {placeholder.lines.map((l) => <span class="line">{l}</span>)}
+        </p>
+        <footer>
+          <cite class="ref" data-verse-ref>{placeholder.reference}</cite>
+        </footer>
+      </blockquote>
+
+      <button class="share" type="button" data-verse-share data-share-text="">
+        <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M18 16a3 3 0 0 0-2.4 1.2l-6.7-3.4a3 3 0 0 0 0-1.6l6.7-3.4A3 3 0 1 0 15 7l-6.7 3.4a3 3 0 1 0 0 3.2L15 17a3 3 0 1 0 3-1z"/></svg>
+        <span class="share-label">Share this verse</span>
+      </button>
+    </article>
+
+    <p class="foot"><span data-verse-translation>{placeholder.translation}</span> · A new verse every day</p>
+  </main>
+
+  <script is:inline>
+    (() => {
+      const btn = document.querySelector("[data-verse-share]");
+      const label = btn.querySelector(".share-label");
+      btn.addEventListener("click", async () => {
+        const text = btn.dataset.shareText || document.querySelector("[data-verse-text]").innerText;
+        const url = location.origin + "/verse.htm";
+        try {
+          if (navigator.share) { await navigator.share({ text, url }); return; }
+          await navigator.clipboard.writeText(`${text}\n${url}`);
+          label.textContent = "Copied";
+          setTimeout(() => (label.textContent = "Share this verse"), 1800);
+        } catch {}
+      });
+    })();
+  </script>
+</body>
+</html>
+
+<style is:global>
+  :root {
+    color-scheme: light dark;
+    --bg-1: #f8f3ea;
+    --bg-2: #ece1cd;
+    --ink: #2a2318;
+    --muted: #8a7552;
+    --accent: #a8823f;
+    --card: rgba(255, 255, 255, 0.62);
+    --card-border: rgba(80, 60, 30, 0.08);
+    --shadow: 0 1px 2px rgba(60, 40, 10, 0.04), 0 18px 50px -12px rgba(60, 40, 10, 0.18);
+    --serif: "Cormorant Garamond", "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
+    --sans: Inter, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg-1: #1b1712;
+      --bg-2: #0f0d0a;
+      --ink: #f2e9d8;
+      --muted: #b6a380;
+      --accent: #d2ab62;
+      --card: rgba(255, 255, 255, 0.035);
+      --card-border: rgba(255, 240, 210, 0.08);
+      --shadow: 0 18px 60px -15px rgba(0, 0, 0, 0.6);
+    }
+  }
+
+  *, *::before, *::after { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+  body {
+    margin: 0;
+    min-height: 100vh;
+    min-height: 100dvh;
+    color: var(--ink);
+    background:
+      radial-gradient(ellipse 80% 60% at 50% 0%, rgba(255, 255, 255, 0.55), transparent 70%),
+      linear-gradient(170deg, var(--bg-1), var(--bg-2));
+    background-attachment: fixed;
+    font-family: var(--sans);
+    -webkit-font-smoothing: antialiased;
+  }
+  @media (prefers-color-scheme: dark) {
+    body {
+      background:
+        radial-gradient(ellipse 70% 50% at 50% 0%, rgba(210, 171, 98, 0.10), transparent 70%),
+        linear-gradient(170deg, var(--bg-1), var(--bg-2));
+    }
+  }
+
+  .page {
+    min-height: 100vh;
+    min-height: 100dvh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: clamp(1rem, 3vw, 1.75rem);
+    padding:
+      max(1.25rem, env(safe-area-inset-top))
+      max(1.1rem, env(safe-area-inset-right))
+      max(1.25rem, env(safe-area-inset-bottom))
+      max(1.1rem, env(safe-area-inset-left));
+  }
+
+  .card {
+    width: 100%;
+    max-width: 46rem;
+    padding: clamp(2rem, 6vw, 4rem) clamp(1.4rem, 6vw, 4.5rem);
+    text-align: center;
+    background: var(--card);
+    border: 1px solid var(--card-border);
+    border-radius: clamp(18px, 3vw, 28px);
+    box-shadow: var(--shadow);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+  }
+
+  .date {
+    margin: 0;
+    font-size: clamp(0.72rem, 0.68rem + 0.2vw, 0.82rem);
+    font-weight: 600;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .rule {
+    display: flex;
+    justify-content: center;
+    margin: clamp(1.1rem, 3vw, 1.6rem) 0 clamp(1.4rem, 4vw, 2.2rem);
+  }
+  .rule span {
+    position: relative;
+    width: 3.5rem;
+    height: 1px;
+    background: var(--accent);
+    opacity: 0.6;
+  }
+  .rule span::after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 7px;
+    height: 7px;
+    background: var(--accent);
+    transform: translate(-50%, -50%) rotate(45deg);
+  }
+
+  .verse { margin: 0; }
+  .text {
+    margin: 0 auto;
+    max-width: 30ch;
+    font-family: var(--serif);
+    font-weight: 500;
+    font-size: clamp(1.6rem, 1.15rem + 2.1vw, 2.7rem);
+    line-height: 1.38;
+    letter-spacing: 0.002em;
+    text-wrap: balance;
+    hanging-punctuation: first last;
+  }
+  .text .line { display: block; }
+  .text .line + .line { margin-top: 0.4em; }
+
+  .verse footer { margin-top: clamp(1.2rem, 3.5vw, 2rem); }
+  .ref {
+    font-family: var(--sans);
+    font-style: normal;
+    font-weight: 600;
+    font-size: clamp(0.95rem, 0.88rem + 0.35vw, 1.15rem);
+    letter-spacing: 0.02em;
+    color: var(--ink);
+  }
+  .ref::before { content: "— "; color: var(--accent); }
+
+  .share {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: clamp(1.8rem, 5vw, 2.6rem);
+    min-height: 44px;              /* comfortable tap target */
+    padding: 0.6rem 1.15rem;
+    font: 500 0.92rem/1 var(--sans);
+    color: var(--ink);
+    background: transparent;
+    border: 1px solid color-mix(in srgb, var(--ink) 22%, transparent);
+    border-radius: 999px;
+    cursor: pointer;
+    transition: background-color 0.15s, border-color 0.15s;
+  }
+  .share:hover { background: color-mix(in srgb, var(--accent) 12%, transparent); border-color: var(--accent); }
+  .share:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+  .share svg { color: var(--accent); }
+
+  .foot {
+    margin: 0;
+    font-size: 0.8rem;
+    color: var(--muted);
+    text-align: center;
+  }
+
+  /* Phones: let the verse use the full card width */
+  @media (max-width: 480px) {
+    .text { max-width: none; }
+  }
+
+  /* Large desktops: a bit more air */
+  @media (min-width: 1400px) {
+    .card { max-width: 52rem; }
+    .text { font-size: 3rem; }
+  }
+
+  /* Short landscape phones */
+  @media (max-height: 500px) and (orientation: landscape) {
+    .page { justify-content: flex-start; }
+    .text { font-size: 1.5rem; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    * { transition: none !important; }
+  }
+</style>
