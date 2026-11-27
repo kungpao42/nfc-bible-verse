@@ -23,8 +23,11 @@ crons = ["0 5 * * *"]
 # Settings to iterate on (strings).
 [vars]
 KEEP_LINE_BREAKS = "true"    # "false" = always one paragraph
-REJECT_FRAGMENTS = "false"   # "true"  = refetch verses that start mid-sentence / end on a comma
+REJECT_FRAGMENTS = "true"    # "true"  = refetch verses that start mid-sentence / end on a comma
 MAX_TRIES = "5"              # refetch attempts when REJECT_FRAGMENTS is on
+# Books to draw from (bible-api book IDs). Empty = whole Bible.
+# Psalms, Proverbs, Isaiah, Gospels, Epistles (Romans-Jude)
+BOOKS = "PSA,PRO,ISA,MAT,MRK,LUK,JHN,ROM,1CO,2CO,GAL,EPH,PHP,COL,1TH,2TH,1TI,2TI,TIT,PHM,HEB,JAS,1PE,2PE,1JN,2JN,3JN,JUD"
 
 # Uncomment once 031600.xyz is active in Cloudflare.
 # routes = [

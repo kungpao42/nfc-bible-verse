@@ -92,9 +92,12 @@ async function fetchVerse(env) {
 
   let lastVerse, lastRaw, lastErr;
   const rejected = [];
+  const books = (env.BOOKS || "").replace(/\s+/g, "");
+  const apiUrl = books ? `${API_URL}/${books}` : API_URL;
+
   for (let i = 0; i < maxTries; i++) {
     try {
-      const res = await fetch(API_URL, { headers: { "user-agent": "031600.xyz verse worker" } });
+      const res = await fetch(apiUrl, { headers: { "user-agent": "031600.xyz verse worker" } });
       if (!res.ok) throw new Error(`bible-api HTTP ${res.status}`);
       lastRaw = await res.json();
       lastVerse = parseVerse(lastRaw, { keepLineBreaks });

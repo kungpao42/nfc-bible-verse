@@ -22,8 +22,9 @@ The Bible-verse page behind **031600.xyz/verse.htm**, opened by tapping an NFC b
 | Var | Default | Effect |
 |---|---|---|
 | `KEEP_LINE_BREAKS` | `"true"` | Keep poetry line breaks; `"false"` = one paragraph |
-| `REJECT_FRAGMENTS` | `"false"` | `"true"` = refetch verses that start mid-sentence or end on a comma |
+| `REJECT_FRAGMENTS` | `"true"` | `"true"` = refetch verses that start mid-sentence or end on a comma |
 | `MAX_TRIES` | `"5"` | Refetch attempts when rejecting fragments |
+| `BOOKS` | Psalms, Proverbs, Isaiah, Gospels, Epistles | bible-api book IDs to draw from; empty = whole Bible |
 
 ## Setup
 
