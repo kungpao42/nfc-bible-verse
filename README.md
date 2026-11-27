@@ -86,3 +86,7 @@ When 031600.xyz is active in Cloudflare, uncomment `routes` in `wrangler.toml`.
 ## Programming a band (iPhone, NFC Tools)
 
 NFC Tools → **Write** → **Add a record** → **URL/URI** → `https://031600.xyz/verse` → **Write**, and hold the top of the phone to the band. Don't use "Lock tag": locking is permanent.
+
+## License
+
+[MIT](LICENSE). Verse text is from the World English Bible, which is in the public domain.
