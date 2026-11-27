@@ -2,6 +2,28 @@
 
 The Bible-verse page behind **031600.xyz/verse**, opened by tapping an NFC bracelet.
 
+## Have a bracelet that stopped working?
+
+Many NFC Bible-verse bracelets sold on Amazon were programmed to open **gdbracelets.com**. That site has gone offline, so tapping those bracelets now leads nowhere.
+
+The chip inside many of them can be rewritten. If yours can, point it at this site and it works again, with a new verse every day:
+
+1. Install **NFC Tools** (free on iPhone and Android).
+2. Tap **Read** and hold your phone to the bracelet. Look for **Writable: Yes**.
+   If it says **No**, the chip was locked at the factory and can't be changed by anyone, sorry.
+3. Tap **Write** → **Add a record** → **URL/URI**, and enter `https://031600.xyz/verse`.
+4. Tap **Write** and hold your phone to the bracelet again. Tap it once more to test.
+
+Don't use NFC Tools' **Lock tag** option. Locking is permanent.
+
+**What you'll see:** one verse a day for everyone, changing at midnight Eastern, drawn from Psalms, Proverbs, Isaiah, the Gospels and the Epistles (World English Bible). It may not match exactly what gdbracelets.com showed.
+
+**Prefer not to depend on someone else's domain?** That's what happened with gdbracelets.com. This repo is everything needed to run your own copy on Cloudflare's free plan (see [Setup](#setup)); then write your own domain to the bracelet instead.
+
+*This project isn't affiliated with gdbracelets.com or any bracelet seller. It's free and has no ads.*
+
+---
+
 - **Page:** designed in Astro (`src/pages/verse.astro`), built as a static template
 - **Worker:** `worker/index.js` serves `/verse` (and `/verse.htm`) and fills the template with the day's verse (complete HTML, no client-side fetch)
 - **Verse source:** `https://bible-api.com/data/web/random` (World English Bible, public domain), limited to **Psalms, Proverbs, Isaiah, the Gospels and the Epistles (Romans–Jude)**. Verses that start mid-sentence or end on a comma are skipped
