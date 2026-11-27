@@ -1,9 +1,9 @@
 // Worker for 031600.xyz
 //
-//   /verse.htm         today's verse (Astro-built template, filled in here)
-//   /verse.htm?fresh=1 preview: a brand-new random verse, NOT saved (for testing parsing/design)
+//   /verse, /verse.htm   today's verse (Astro-built template, filled in here)
+//   /verse?fresh=1       preview: a brand-new random verse, NOT saved (for testing parsing/design)
 //   /api/verse         today's verse as JSON   (?fresh=1 also includes bible-api's raw response)
-//   /                  redirects to /verse.htm
+//   /                    redirects to /verse
 //
 // A cron at 05:00 UTC fetches the next verse into KV. If the cron ever misses,
 // the first request of the day does the fetch instead.
@@ -18,11 +18,11 @@ export default {
     const url = new URL(request.url);
     const fresh = url.searchParams.has("fresh");
 
-    if (url.pathname === "/" ) {
-      return Response.redirect(new URL("/verse.htm", url), 302);
+    if (url.pathname === "/") {
+      return Response.redirect(new URL("/verse", url), 302);
     }
 
-    if (url.pathname === "/verse.htm") {
+    if (url.pathname === "/verse" || url.pathname === "/verse.htm") {
       const verse = fresh ? (await fetchVerse(env)).verse : await getTodaysVerse(env);
       const template = await env.ASSETS.fetch(new URL("/verse.html", url));
       const html = fillTemplate(template, verse);
@@ -39,8 +39,8 @@ export default {
     }
 
     // Don't expose the raw template; everything else is a static asset.
-    if (url.pathname === "/verse.html" || url.pathname === "/verse") {
-      return Response.redirect(new URL("/verse.htm", url), 301);
+    if (url.pathname === "/verse.html" || url.pathname === "/verse/") {
+      return Response.redirect(new URL("/verse", url), 301);
     }
     return env.ASSETS.fetch(request);
   },
