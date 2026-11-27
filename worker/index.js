@@ -13,6 +13,8 @@ import { parseVerse, looksComplete, VerseParseError } from "./parse.js";
 const API_URL = "https://bible-api.com/data/web/random";
 const ROLLOVER_HOUR_UTC = 5; // keep in sync with the cron in wrangler.toml
 
+export { kvCacheTtl, verseDay };
+
 export default {
   async fetch(request, env, ctx) {
     const url = new URL(request.url);
@@ -46,7 +48,7 @@ export default {
   },
 
   async scheduled(event, env, ctx) {
-    ctx.waitUntil(getTodaysVerse(env));
+    ctx.waitUntil(getTodaysVerse(env, { fromCron: true }));
   },
 };
 
@@ -59,12 +61,26 @@ function verseDay(now = new Date()) {
   return new Date(now.getTime() - ROLLOVER_HOUR_UTC * 3600_000).toISOString().slice(0, 10);
 }
 
-async function getTodaysVerse(env) {
+// How long each Cloudflare location may hold today's KV value before re-reading it.
+// Up to 1 hour, never past the 05:00 UTC changeover. For the first 10 minutes after
+// the changeover it stays at the 60s minimum, because KV can also hold a "not found"
+// result and we don't want a location stuck re-fetching from bible-api.
+function kvCacheTtl(now = Date.now()) {
+  const DAY = 86400;
+  const sinceRollover = Math.floor((now / 1000 - ROLLOVER_HOUR_UTC * 3600) % DAY);
+  const untilRollover = DAY - sinceRollover;
+  if (sinceRollover < 600) return 60;
+  return Math.max(60, Math.min(3600, untilRollover));
+}
+
+async function getTodaysVerse(env, { fromCron = false } = {}) {
   const day = verseDay();
   const key = `verse:${day}`;
 
   const books = booksSetting(env);
-  const existing = await env.VERSES.get(key, "json");
+  const existing = fromCron
+    ? await env.VERSES.get(key, "json")
+    : await env.VERSES.get(key, { type: "json", cacheTtl: kvCacheTtl() });
   // Keep today's verse (including on a cron re-run) unless the book list was changed since it was fetched.
   if (existing && (existing.books ?? null) === books) return existing;
 

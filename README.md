@@ -4,9 +4,15 @@ The Bible-verse page behind **031600.xyz/verse**, opened by tapping an NFC brace
 
 - **Page:** designed in Astro (`src/pages/verse.astro`), built as a static template
 - **Worker:** `worker/index.js` serves `/verse` (and `/verse.htm`) and fills the template with the day's verse (complete HTML, no client-side fetch)
-- **Verse source:** `https://bible-api.com/data/web/random` (World English Bible, public domain)
+- **Verse source:** `https://bible-api.com/data/web/random` (World English Bible, public domain), limited to **Psalms, Proverbs, Isaiah, the Gospels and the Epistles (Romans–Jude)**. Verses that start mid-sentence or end on a comma are skipped
 - **Schedule:** a new verse at **05:00 UTC** (cron), stored in Workers KV until the next day. If the cron misses, the first visit after 05:00 UTC fetches it
 - **Parsing:** `worker/parse.js` validates bible-api's response and normalizes it (tests in `test/`)
+
+## Caching
+
+- One verse per day, stored in Workers KV under that day's key (the day starts at 05:00 UTC)
+- Each Cloudflare location holds the KV value for up to 1 hour (never past 05:00 UTC; 60 s for the first 10 minutes after it), so most taps skip the KV read
+- Changing `BOOKS` replaces today's verse within about an hour of the deploy
 
 ## Routes
 
