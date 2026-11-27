@@ -46,26 +46,31 @@ export default {
   },
 
   async scheduled(event, env, ctx) {
-    ctx.waitUntil(getTodaysVerse(env, { refresh: true }));
+    ctx.waitUntil(getTodaysVerse(env));
   },
 };
+
+function booksSetting(env) {
+  return (env.BOOKS || "").replace(/\s+/g, "") || "";
+}
 
 // The "verse day" starts at 05:00 UTC. Key it by that day's date.
 function verseDay(now = new Date()) {
   return new Date(now.getTime() - ROLLOVER_HOUR_UTC * 3600_000).toISOString().slice(0, 10);
 }
 
-async function getTodaysVerse(env, { refresh = false } = {}) {
+async function getTodaysVerse(env) {
   const day = verseDay();
   const key = `verse:${day}`;
 
+  const books = booksSetting(env);
   const existing = await env.VERSES.get(key, "json");
-  if (existing && !refresh) return existing;
-  if (existing && refresh) return existing; // cron re-run on same day: keep what people already saw
+  // Keep today's verse (including on a cron re-run) unless the book list was changed since it was fetched.
+  if (existing && (existing.books ?? null) === books) return existing;
 
   try {
     const { verse } = await fetchVerse(env);
-    const stored = { ...verse, day, fetchedAt: new Date().toISOString() };
+    const stored = { ...verse, books, day, fetchedAt: new Date().toISOString() };
     await env.VERSES.put(key, JSON.stringify(stored), { expirationTtl: 60 * 60 * 72 });
     await env.VERSES.put("verse:last", JSON.stringify(stored));
     return stored;
@@ -92,7 +97,7 @@ async function fetchVerse(env) {
 
   let lastVerse, lastRaw, lastErr;
   const rejected = [];
-  const books = (env.BOOKS || "").replace(/\s+/g, "");
+  const books = booksSetting(env);
   const apiUrl = books ? `${API_URL}/${books}` : API_URL;
 
   for (let i = 0; i < maxTries; i++) {
